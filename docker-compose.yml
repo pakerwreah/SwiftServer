@@ -1,30 +1,33 @@
-# Docker Compose file for Vapor
-#
-# Install Docker on your system to run and test
-# your Vapor app in a production-like environment.
-#
-# Note: This file is intended for testing and does not
-# implement best practices for a production deployment.
-#
-# Learn more: https://docs.docker.com/compose/reference/
-#
-#   Build images: docker-compose build
-#      Start app: docker-compose up app
-#       Stop all: docker-compose down
-#
-version: '3.7'
-
-x-shared_environment: &shared_environment
-  LOG_LEVEL: ${LOG_LEVEL:-debug}
-
+version: '3'
 services:
-  app:
-    image: SwiftServer:latest
-    build:
-      context: .
+  postgres:
+    image: postgres:alpine
+    container_name: swiftserver_postgres
     environment:
-      <<: *shared_environment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+      TZ: America/Sao_Paulo
     ports:
-      - '8080:8080'
-    # user: '0' # uncomment to run as root for testing purposes even though Dockerfile defines 'vapor' user.
-    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
+      - '5432:5432'
+    networks:
+      - postgres-network
+    volumes:
+      - ./database:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: swiftserver_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "postgres@local.com"
+      PGADMIN_DEFAULT_PASSWORD: "postgres"
+    ports:
+      - "5050:80"
+    networks:
+      - postgres-network
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+
+networks:
+  postgres-network:
+    driver: bridge
