@@ -8,6 +8,10 @@ class Database {
     private let eventLoopGroup: EventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
     private let pool: ConnectionPool
 
+    class var eventLoop: EventLoop {
+        Database.pool.eventLoopGroup.next()
+    }
+
     class var pool: ConnectionPool {
         if instance == nil {
             instance = Database()

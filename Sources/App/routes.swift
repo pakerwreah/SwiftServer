@@ -10,4 +10,6 @@ func routes(_ app: Application) throws {
     }
 
     app.get("users", use: UserController.getUsers)
+    app.get("random", use: UserController.getRandomUsers)
+    app.get("combined", use: UserController.getCombinedUsers)
 }
