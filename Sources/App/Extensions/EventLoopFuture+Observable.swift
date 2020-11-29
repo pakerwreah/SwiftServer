@@ -1,5 +1,6 @@
 import NIO
 import RxSwift
+import Vapor
 
 extension EventLoopFuture {
     func asObservable() -> Observable<Value> {
@@ -20,9 +21,9 @@ extension EventLoopFuture {
     }
 }
 
-extension Observable {
-    func asFuture(eventLoop: EventLoop) -> EventLoopFuture<Element> {
-        let promise = eventLoop.makePromise(of: Element.self)
+extension Observable: ResponseEncodable where Element: ResponseEncodable {
+    func asFuture(eventLoop: EventLoop? = MultiThreadedEventLoopGroup.currentEventLoop) -> EventLoopFuture<Element> {
+        guard let promise = eventLoop?.makePromise(of: Element.self) else { fatalError() }
 
         _ = subscribe(onNext: { value in
             promise.succeed(value)
@@ -33,5 +34,9 @@ extension Observable {
         })
 
         return promise.futureResult
+    }
+
+    public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
+        return asFuture().encodeResponse(for: request)
     }
 }
