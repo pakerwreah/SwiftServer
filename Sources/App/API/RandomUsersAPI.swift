@@ -1,4 +1,4 @@
-import Vapor
+import Foundation
 import RxSwift
 import RxCocoa
 
@@ -25,8 +25,11 @@ class RandomUsersAPI {
             (try JSONDecoder().decode(Response<RandomUser>.self, from: data)).results
         }
         .map { users in
-            users.map {
-                User(id: 0, name: "\($0.name.title) \($0.name.first) \($0.name.last)", email: $0.email, active: false)
+            users.map { user in
+                User(id: Int.random(in: 100...200),
+                     name: "\(user.name.title) \(user.name.first) \(user.name.last)",
+                     email: user.email,
+                     active: Bool.random())
             }
         }
     }
