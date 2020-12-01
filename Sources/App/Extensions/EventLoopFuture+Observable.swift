@@ -21,7 +21,7 @@ extension EventLoopFuture {
     }
 }
 
-extension Observable: ResponseEncodable where Element: ResponseEncodable {
+extension Observable {
     func asFuture(eventLoop: EventLoop? = MultiThreadedEventLoopGroup.currentEventLoop) -> EventLoopFuture<Element> {
         guard let promise = eventLoop?.makePromise(of: Element.self) else { fatalError() }
 
@@ -35,7 +35,9 @@ extension Observable: ResponseEncodable where Element: ResponseEncodable {
 
         return promise.futureResult
     }
+}
 
+extension Observable: ResponseEncodable where Element: ResponseEncodable {
     public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
         return asFuture().encodeResponse(for: request)
     }
